@@ -1,13 +1,17 @@
 package bucknell.edu.sync;
 
+import android.sax.Element;
+import android.sax.RootElement;
 import android.util.Log;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.io.InputStream;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import bucknell.edu.Data.Channel;
 import bucknell.edu.Data.RssItem;
 
 /**
@@ -45,6 +49,7 @@ public class RssXMLHandler extends DefaultHandler{
         } else if (qName.equals("category")){
             parsingCategory = true;
         } else if (qName.equals("content:encoded")){
+            Log.i("content start", "content start");
             parsingContent = true;
         }
     }
@@ -61,7 +66,8 @@ public class RssXMLHandler extends DefaultHandler{
             }
         } else if (parsingContent){
             if (currentItem != null){
-                currentItem.setContent(new String(ch, start, length));
+                currentItem.setContent(new String(ch));
+                Log.i("content", new String(ch));
             }
         }
         // parse pubDate and category
@@ -71,8 +77,6 @@ public class RssXMLHandler extends DefaultHandler{
     public void endElement(String uri, String localName, String qName) throws SAXException{
         if (qName.equals("item")){
             rssItems.add(currentItem);
-            Log.i("item title", currentItem.getTitle());
-            Log.i("item content", currentItem.getContent());
         } else if (qName.equals("title")){
             parsingTitle = false;
         } else if (qName.equals("link")){
@@ -83,6 +87,8 @@ public class RssXMLHandler extends DefaultHandler{
             parsingCategory = false;
         } else if (qName.equals("content:encoded")){
             parsingContent = false;
+            Log.i("content end ", "content end");
         }
     }
+
 }

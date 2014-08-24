@@ -17,6 +17,7 @@ import bucknell.edu.Fragments.RssItemsFragment;
 import bucknell.edu.Interfaces.RssListener;
 import bucknell.edu.bucknellreader.R;
 import bucknell.edu.Fragments.SplashScreenFragment;
+import bucknell.edu.sync.RssJsonAsyncTask;
 import bucknell.edu.sync.RssXMLAsyncTask;
 
 
@@ -31,8 +32,8 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         addSplashScreen();
-        RssXMLAsyncTask bucknellianXMLAsyncTask = new RssXMLAsyncTask(this);
-        bucknellianXMLAsyncTask.execute("http://bucknellian.net/feed/");
+        RssJsonAsyncTask bucknellianJSONAsyncTask = new RssJsonAsyncTask(this);
+        bucknellianJSONAsyncTask.execute("http://bucknellian.net/category/news/?json=1");
     }
 
     private void addSplashScreen() {
@@ -70,13 +71,7 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onRssFinishLoading(CopyOnWriteArrayList<RssItem> rssItems) {
-        this.rssItems = rssItems;
-        removeSplashScreen();
 
-        ShowRssItemsFragment(rssItems);
-    }
 
     private void ShowRssItemsFragment(CopyOnWriteArrayList<RssItem> rssItems) {
         rssItemsFragment = new RssItemsFragment(rssItems);
@@ -95,10 +90,16 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
         fragmentTransaction.commit();
     }
 
+
+    @Override
+    public void onRssFinishLoading(CopyOnWriteArrayList<RssItem> rssItems) {
+        this.rssItems = rssItems;
+        removeSplashScreen();
+
+        ShowRssItemsFragment(rssItems);
+    }
     @Override
     public void onRssItemsFragmentInteraction(String title, String content) {
-        Log.i("title", title);
-        Log.i("content", content);
         ShowRssItemFeedFragment(title, content);
     }
 
