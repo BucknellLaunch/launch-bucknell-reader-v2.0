@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -99,8 +100,9 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
         ShowRssItemsFragment(rssItems);
     }
     @Override
-    public void onRssItemsFragmentInteraction(String title, String content) {
-        ShowRssItemFeedFragment(title, content);
+    public void onRssItemsFragmentInteraction(String title, String contentHTML) {
+        String contentPlainText = Html.fromHtml(contentHTML).toString();
+        ShowRssItemFeedFragment(title, contentPlainText);
     }
 
     @Override
