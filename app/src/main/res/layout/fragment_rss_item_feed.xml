@@ -10,12 +10,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:textSize = "20dp"
         android:layout_weight="1"
         android:id="@+id/rss_item_title" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:scrollbars = "vertical"
         android:layout_weight="6"
         android:id="@+id/rss_item_content" />
 

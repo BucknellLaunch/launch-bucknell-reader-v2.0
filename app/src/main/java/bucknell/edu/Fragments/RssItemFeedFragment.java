@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,6 +80,7 @@ public class RssItemFeedFragment extends Fragment {
         TextView contentView = (TextView) getActivity().findViewById(R.id.rss_item_content);
         titleView.setText(title);
         contentView.setText(content);
+        contentView.setMovementMethod(new ScrollingMovementMethod());
     }
 
     // TODO: Rename method, update argument and hook method into UI event
