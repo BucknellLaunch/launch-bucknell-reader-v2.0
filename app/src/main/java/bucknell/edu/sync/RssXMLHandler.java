@@ -1,17 +1,13 @@
 package bucknell.edu.sync;
 
-import android.sax.Element;
-import android.sax.RootElement;
 import android.util.Log;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.InputStream;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import bucknell.edu.Data.Channel;
 import bucknell.edu.Data.RssItem;
 
 /**
