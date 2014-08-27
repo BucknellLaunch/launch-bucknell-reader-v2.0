@@ -12,7 +12,6 @@ import bucknell.edu.bucknellreader.R;
 
 /**
  * A simple {@link Fragment} subclass.
- *
  */
 public class SplashScreenFragment extends Fragment {
 
