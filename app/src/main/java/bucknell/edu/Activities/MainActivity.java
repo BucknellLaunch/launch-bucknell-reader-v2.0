@@ -32,7 +32,10 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // check if database is empty. If it is, load the splash screen
         addSplashScreen();
+
+        // do not update until user pull down the list to refresh
         RssJsonAsyncTask bucknellianJSONAsyncTask = new RssJsonAsyncTask(this);
         bucknellianJSONAsyncTask.execute("http://bucknellian.net/category/news/?json=1");
     }
@@ -95,6 +98,7 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
     @Override
     public void onRssFinishLoading(CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
+        // check if splash screen is open. If yes, then remove splash screen
         removeSplashScreen();
 
         ShowRssItemsFragment(rssItems);
