@@ -99,6 +99,7 @@ public class RssJsonAsyncTask extends AsyncTask<String, Void, CopyOnWriteArrayLi
                     rssItem.setTitle(post.getString("title"));
                     rssItem.setLink(post.getString("url"));
                     rssItem.setContent(post.getString("content"));
+                    rssItem.setDate(post.getString("date"));
                     // get more info from JSON
                     rssItems.add(rssItem);
                 }

@@ -3,15 +3,22 @@ package bucknell.edu.Data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import bucknell.edu.Fragments.RssItemsFragment;
-
 /**
  * Created by boolli on 8/23/14.
  */
-public class RssItem implements Parcelable{
+public class RssItem implements Parcelable {
     private String title;
     private String link;
     private String content;
+    private String date;
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getDate() {
+        return date;
+    }
 
     public String getTitle() {
         return title;
@@ -38,7 +45,7 @@ public class RssItem implements Parcelable{
         this.content = content;
     }
 
-    public String toString(){
+    public String toString() {
         return title;
     }
 
@@ -52,21 +59,23 @@ public class RssItem implements Parcelable{
         parcel.writeString(title);
         parcel.writeString(link);
         parcel.writeString(content);
+        parcel.writeString(date);
         // add more fields here
     }
 
-    public RssItem(Parcel parcel){
+    public RssItem(Parcel parcel) {
         title = parcel.readString();
         link = parcel.readString();
         content = parcel.readString();
+        date = parcel.readString();
         // add more fields here
     }
 
-    public RssItem(){
+    public RssItem() {
 
     }
 
-    public static final Creator<RssItem> CREATOR = new Creator<RssItem>(){
+    public static final Creator<RssItem> CREATOR = new Creator<RssItem>() {
 
         @Override
         public RssItem createFromParcel(Parcel parcel) {

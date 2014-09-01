@@ -12,8 +12,7 @@ public class RssSQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_LINK = "link";
-    public static final String COLUMN_PUB_DATE = "pubDate";
-    public static final String COLUMN_CATEGORY = "category";
+    public static final String COLUMN_DATE = "date";
     public static final String COLUMN_CONTENT = "content";
 
     public static final String DATABASE_NAME = "rss_items.db";
@@ -28,7 +27,7 @@ public class RssSQLiteHelper extends SQLiteOpenHelper {
             + TABLE_RSS_ITEMS + "(" + COLUMN_ID
             + " integer primary key autoincrement, " + COLUMN_TITLE
             + " text not null, " + COLUMN_LINK + " text not null, "
-            + COLUMN_PUB_DATE + " text not null, " + COLUMN_CATEGORY + " text not null, " + COLUMN_CONTENT + " text not null);";
+            + COLUMN_DATE + " text not null, "  + COLUMN_CONTENT + " text not null);";
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
