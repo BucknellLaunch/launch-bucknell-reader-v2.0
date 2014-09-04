@@ -18,6 +18,7 @@ import bucknell.edu.Fragments.RssItemsFragment;
 import bucknell.edu.Interfaces.RssListener;
 import bucknell.edu.bucknellreader.R;
 import bucknell.edu.Fragments.SplashScreenFragment;
+import bucknell.edu.database.RssSQLiteDataSource;
 import bucknell.edu.sync.RssJsonAsyncTask;
 import bucknell.edu.sync.RssXMLAsyncTask;
 
@@ -26,18 +27,26 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
     private SplashScreenFragment splashScreenFragment;
     private CopyOnWriteArrayList<RssItem> rssItems;
     private RssItemsFragment rssItemsFragment;
+    private RssSQLiteDataSource rssSQLiteDataSource;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // check if database is empty. If it is, load the splash screen
-        addSplashScreen();
+        rssSQLiteDataSource = new RssSQLiteDataSource(this);
+        rssSQLiteDataSource.open();
 
-        // do not update until user pull down the list to refresh
-        RssJsonAsyncTask bucknellianJSONAsyncTask = new RssJsonAsyncTask(this);
-        bucknellianJSONAsyncTask.execute("http://bucknellian.net/category/news/?json=1");
+        if (rssSQLiteDataSource.isDatabaseEmpty()) {
+            addSplashScreen();
+            RssJsonAsyncTask bucknellianJSONAsyncTask = new RssJsonAsyncTask(this);
+            bucknellianJSONAsyncTask.execute("http://bucknellian.net/category/news/?json=1");
+        } else {
+            // reads in the Rss Items from the database and renders them to RssItemsFragment
+            rssItems = rssSQLiteDataSource.getAllRssItems();
+            ShowRssItemsFragment(rssItems);
+        }
+
     }
 
     private void addSplashScreen() {
@@ -95,6 +104,11 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
     }
 
 
+    /**
+     * performs actions after the RSS feeds finish loading. This will happen when the RssAsyncTask objects finish loading.
+     *
+     * @param rssItems an array of RssItems returned by the RssAsyncTask objects.
+     */
     @Override
     public void onRssFinishLoading(CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;

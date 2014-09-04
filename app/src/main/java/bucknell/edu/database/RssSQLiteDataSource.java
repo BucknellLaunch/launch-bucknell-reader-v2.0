@@ -84,4 +84,13 @@ public class RssSQLiteDataSource {
 
         return item;
     }
+
+    public boolean isDatabaseEmpty(){
+        boolean isEmpty = true;
+        Cursor cursor = database.rawQuery("SELECT * FROM " + RssSQLiteHelper.TABLE_RSS_ITEMS, null);
+        if (cursor.moveToNext()){
+            isEmpty = false;
+        }
+        return isEmpty;
+    }
 }

@@ -141,7 +141,6 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
     * >Communicating with Other Fragments</a> for more information.
     */
     public interface OnRssItemsFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onRssItemsFragmentInteraction(String title, String content);
     }
 

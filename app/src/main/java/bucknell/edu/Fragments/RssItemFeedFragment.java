@@ -119,7 +119,6 @@ public class RssItemFeedFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnRssItemFeedFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onRssItemFeedFragmentInteraction(Uri uri);
     }
 
