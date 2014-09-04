@@ -22,3 +22,10 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+dependencies {
+    repositories {
+        mavenCentral()
+    }
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:+'
+}
