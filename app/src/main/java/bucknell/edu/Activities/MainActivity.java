@@ -112,8 +112,13 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
     @Override
     public void onRssFinishLoading(CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
-        // check if splash screen is open. If yes, then remove splash screen
         removeSplashScreen();
+
+        // add rssItems into database
+        if (rssItems != null)
+            rssSQLiteDataSource.addRssItems(this.rssItems);
+
+        // * still need to store the most recent data so the app knows when to update itself
 
         ShowRssItemsFragment(rssItems);
     }

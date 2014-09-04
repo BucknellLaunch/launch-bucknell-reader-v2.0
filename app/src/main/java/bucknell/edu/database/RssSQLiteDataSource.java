@@ -62,6 +62,17 @@ public class RssSQLiteDataSource {
         return items;
     }
 
+    public CopyOnWriteArrayList<RssItem> replaceDatabaseWithRssItems(CopyOnWriteArrayList<RssItem> rssItems){
+        clearTable();
+        return addRssItems(rssItems);
+    }
+
+    public void clearTable() {
+        if (database != null){
+            database.delete(RssSQLiteHelper.TABLE_RSS_ITEMS, null, null);
+        }
+    }
+
     public CopyOnWriteArrayList<RssItem> getAllRssItems(){
         CopyOnWriteArrayList<RssItem> items = new CopyOnWriteArrayList<RssItem>();
         Cursor cursor = database.query(RssSQLiteHelper.TABLE_RSS_ITEMS, allColumns, null, null, null, null, null);
