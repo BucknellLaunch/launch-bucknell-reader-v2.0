@@ -42,7 +42,7 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private ArrayAdapter<RssItem> mAdapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -128,6 +128,24 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
         if (emptyText instanceof TextView) {
             ((TextView) emptyView).setText(emptyText);
         }
+    }
+
+    /**
+     * Clears the content of the list and updates the view. This will make the whole list view a blank screen.
+     */
+    public void clearRssItems() {
+        mAdapter.clear();
+        mAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Resets Rss items to the list of items passed into the method. This method should be called when the activity
+     * wants to update the Rss item lists.
+     */
+    public void ResetRssItems(CopyOnWriteArrayList<RssItem> rssItems){
+        mAdapter.clear();
+        mAdapter.addAll(rssItems);
+        mAdapter.notifyDataSetChanged();
     }
 
     /**
