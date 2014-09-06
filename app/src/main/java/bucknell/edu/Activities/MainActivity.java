@@ -33,7 +33,6 @@ public class MainActivity extends Activity implements RssListener,
     private RssItemsFragment rssItemsFragment;
     private RssSQLiteDataSource rssSQLiteDataSource;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,15 +122,25 @@ public class MainActivity extends Activity implements RssListener,
     @Override
     public void onRssFinishLoading(CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
-        removeSplashScreen();
 
-        // add rssItems into database
-        if (rssItems != null)
-            rssSQLiteDataSource.addRssItems(this.rssItems);
+        // if the database is empty, it means that it's the first time users open up the app. So need to update
+        // the empty list with rss items and remove splash screen
+        if (rssSQLiteDataSource.isDatabaseEmpty()) {
+            removeSplashScreen();
+            // add rssItems into database
+            if (rssItems != null)
+                rssSQLiteDataSource.addRssItems(this.rssItems);
 
-        // * still need to store the most recent data so the app knows when to update itself
+            // * still need to store the most recent data so the app knows when to update itself
+            ShowRssItemsFragment(rssItems);
 
-        ShowRssItemsFragment(rssItems);
+        } else { // if the database is not empty, then it is because users swipe to refresh the list.
+            rssSQLiteDataSource.replaceDatabaseWithRssItems(this.rssItems);
+            rssItemsFragment.resetRssItems(this.rssItems);
+            rssItemsFragment.stopRefreshing();
+        }
+
+
     }
     @Override
     public void onRssItemsFragmentInteraction(String title, String contentHTML) {

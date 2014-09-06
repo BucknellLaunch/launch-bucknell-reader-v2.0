@@ -6,21 +6,10 @@
     android:layout_height="match_parent"
     tools:context="bucknell.edu.Fragments.RssItemsFragment">
 
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
         <ListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <TextView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center" />
-    </FrameLayout>
 
 </android.support.v4.widget.SwipeRefreshLayout>

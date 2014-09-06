@@ -125,19 +125,6 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
     }
 
     /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyText instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
-        }
-    }
-
-    /**
      * Clears the content of the list and updates the view. This will make the whole list view a blank screen.
      */
     public void clearRssItems() {
@@ -149,10 +136,15 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
      * Resets Rss items to the list of items passed into the method. This method should be called when the activity
      * wants to update the Rss item lists.
      */
-    public void ResetRssItems(CopyOnWriteArrayList<RssItem> rssItems){
+    public void resetRssItems(CopyOnWriteArrayList<RssItem> rssItems){
         mAdapter.clear();
         mAdapter.addAll(rssItems);
         mAdapter.notifyDataSetChanged();
+    }
+
+    public void stopRefreshing(){
+        SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipe_refresh_view);
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     /**
