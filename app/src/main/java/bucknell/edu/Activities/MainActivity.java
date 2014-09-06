@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
@@ -23,7 +24,10 @@ import bucknell.edu.sync.RssJsonAsyncTask;
 import bucknell.edu.sync.RssXMLAsyncTask;
 
 
-public class MainActivity extends Activity implements RssListener, RssItemsFragment.OnRssItemsFragmentInteractionListener, RssItemFeedFragment.OnRssItemFeedFragmentInteractionListener {
+public class MainActivity extends Activity implements RssListener,
+        RssItemsFragment.OnRssItemsFragmentInteractionListener,
+        RssItemFeedFragment.OnRssItemFeedFragmentInteractionListener,
+        SwipeRefreshLayout.OnRefreshListener {
     private SplashScreenFragment splashScreenFragment;
     private CopyOnWriteArrayList<RssItem> rssItems;
     private RssItemsFragment rssItemsFragment;
@@ -37,16 +41,23 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
         rssSQLiteDataSource = new RssSQLiteDataSource(this);
         rssSQLiteDataSource.open();
 
+        // if the database is empty, then show splash screen and fetch Rss Items for the first time
         if (rssSQLiteDataSource.isDatabaseEmpty()) {
             addSplashScreen();
-            RssJsonAsyncTask bucknellianJSONAsyncTask = new RssJsonAsyncTask(this);
-            bucknellianJSONAsyncTask.execute("http://bucknellian.net/category/news/?json=1");
+            fetchRssItems("http://bucknellian.net/category/news/?json=1");
+
+
         } else {
             // reads in the Rss Items from the database and renders them to RssItemsFragment
             rssItems = rssSQLiteDataSource.getAllRssItems();
             ShowRssItemsFragment(rssItems);
         }
 
+    }
+
+    private void fetchRssItems(String url) {
+        RssJsonAsyncTask rssJsonAsyncTask = new RssJsonAsyncTask(this);
+        rssJsonAsyncTask.execute(url);
     }
 
     private void addSplashScreen() {
@@ -131,5 +142,10 @@ public class MainActivity extends Activity implements RssListener, RssItemsFragm
     @Override
     public void onRssItemFeedFragmentInteraction(Uri uri) {
         // handle any interaction event on the "show" page
+    }
+
+    @Override
+    public void onRefresh() {
+        fetchRssItems("http://bucknellian.net/category/news/?json=1");
     }
 }

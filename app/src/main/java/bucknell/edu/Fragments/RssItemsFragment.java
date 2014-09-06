@@ -3,6 +3,8 @@ package bucknell.edu.Fragments;
 import android.app.Activity;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,7 +72,6 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
         // TODO: Change Adapter to display your content
         mAdapter = new ArrayAdapter<RssItem>(getActivity(),
                 android.R.layout.simple_list_item_1, android.R.id.text1, rssItems);
-
     }
 
     @Override
@@ -85,6 +86,10 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
 
+        // set the main activity to be the OnRefreshListener
+        SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_view);
+        swipeRefreshLayout.setOnRefreshListener( (SwipeRefreshLayout.OnRefreshListener) getActivity());
+
         return view;
     }
 
@@ -92,12 +97,14 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         setRetainInstance(true);
+        // set the main activity to be the OnRssItemsFragmentInteractionListener
         try {
             mListener = (OnRssItemsFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                 + " must implement OnRssItemsFragmentInteractionListener");
         }
+
     }
 
     @Override
