@@ -1,6 +1,7 @@
 package bucknell.edu.Fragments;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -89,6 +90,7 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
         // set the main activity to be the OnRefreshListener
         SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_view);
         swipeRefreshLayout.setOnRefreshListener( (SwipeRefreshLayout.OnRefreshListener) getActivity());
+        swipeRefreshLayout.setColorSchemeColors(Color.RED, Color.GREEN, Color.BLUE, Color.CYAN);
 
         return view;
     }

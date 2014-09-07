@@ -29,8 +29,10 @@ import bucknell.edu.Interfaces.RssListener;
 public class RssJsonAsyncTask extends AsyncTask<String, Void, CopyOnWriteArrayList<RssItem>> {
     private CopyOnWriteArrayList<RssItem> rssItems;
     private RssListener rssListener;
+    private String taskName;
 
-    public RssJsonAsyncTask(Activity activity){
+    public RssJsonAsyncTask(String taskName, Activity activity){
+        this.taskName = taskName;
         rssListener = (RssListener) activity;
         rssItems = new CopyOnWriteArrayList<RssItem>();
     }
@@ -49,7 +51,7 @@ public class RssJsonAsyncTask extends AsyncTask<String, Void, CopyOnWriteArrayLi
 
     @Override
     protected void onPostExecute(CopyOnWriteArrayList<RssItem> result){
-        rssListener.onRssFinishLoading(result);
+        rssListener.onRssFinishLoading(taskName, result);
     }
 
     private JSONObject getJSONFromUrl(String url) {

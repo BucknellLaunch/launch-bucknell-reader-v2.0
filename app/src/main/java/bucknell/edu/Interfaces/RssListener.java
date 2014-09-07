@@ -8,5 +8,5 @@ import bucknell.edu.Data.RssItem;
  * Created by boolli on 8/23/14.
  */
 public interface RssListener {
-    public void onRssFinishLoading(CopyOnWriteArrayList<RssItem> rssItems);
+    public void onRssFinishLoading(String taskName, CopyOnWriteArrayList<RssItem> rssItems);
 }

@@ -4,15 +4,18 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import bucknell.edu.Data.RssResource;
 import bucknell.edu.Data.RssItem;
 import bucknell.edu.Fragments.RssItemFeedFragment;
 import bucknell.edu.Fragments.RssItemsFragment;
@@ -21,7 +24,6 @@ import bucknell.edu.bucknellreader.R;
 import bucknell.edu.Fragments.SplashScreenFragment;
 import bucknell.edu.database.RssSQLiteDataSource;
 import bucknell.edu.sync.RssJsonAsyncTask;
-import bucknell.edu.sync.RssXMLAsyncTask;
 
 
 public class MainActivity extends Activity implements RssListener,
@@ -32,6 +34,18 @@ public class MainActivity extends Activity implements RssListener,
     private CopyOnWriteArrayList<RssItem> rssItems;
     private RssItemsFragment rssItemsFragment;
     private RssSQLiteDataSource rssSQLiteDataSource;
+    private ArrayList<RssResource> rssResources;
+    private HashMap<String, AsyncTask> rssAsyncTasksMap;
+
+    public void loadRssResources() {
+        rssResources = new ArrayList<RssResource>();
+        String[] rssStringResources = getResources().getStringArray(R.array.rss_sources);
+        for (String rssStringResource: rssStringResources) {
+            String[] splitResult = rssStringResource.split("\\|", 2);
+            RssResource rssResource = new RssResource(splitResult[0], splitResult[1]);
+            rssResources.add(rssResource);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,23 +54,28 @@ public class MainActivity extends Activity implements RssListener,
         rssSQLiteDataSource = new RssSQLiteDataSource(this);
         rssSQLiteDataSource.open();
 
+        // load the rss XML resources into the array list
+        loadRssResources();
+        rssAsyncTasksMap = new HashMap<String, AsyncTask>();
+
         // if the database is empty, then show splash screen and fetch Rss Items for the first time
         if (rssSQLiteDataSource.isDatabaseEmpty()) {
             addSplashScreen();
-            fetchRssItems("http://bucknellian.net/category/news/?json=1");
-
-
+            fetchRssItemsFromResources();
         } else {
             // reads in the Rss Items from the database and renders them to RssItemsFragment
             rssItems = rssSQLiteDataSource.getAllRssItems();
             ShowRssItemsFragment(rssItems);
         }
-
     }
 
-    private void fetchRssItems(String url) {
-        RssJsonAsyncTask rssJsonAsyncTask = new RssJsonAsyncTask(this);
-        rssJsonAsyncTask.execute(url);
+    public void fetchRssItemsFromResources() {
+        for (int i = 0; i < rssResources.size(); i++) {
+            RssResource resource = rssResources.get(i);
+            RssJsonAsyncTask rssJsonAsyncTask = new RssJsonAsyncTask(resource.getName(), this);
+            rssJsonAsyncTask.execute(resource.getUrl());
+            rssAsyncTasksMap.put(resource.getName(), rssJsonAsyncTask);
+        }
     }
 
     private void addSplashScreen() {
@@ -120,7 +139,7 @@ public class MainActivity extends Activity implements RssListener,
      * @param rssItems an array of RssItems returned by the RssAsyncTask objects.
      */
     @Override
-    public void onRssFinishLoading(CopyOnWriteArrayList<RssItem> rssItems) {
+    public void onRssFinishLoading(String taskName, CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
 
         // if the database is empty, it means that it's the first time users open up the app. So need to update
@@ -139,11 +158,14 @@ public class MainActivity extends Activity implements RssListener,
             rssItemsFragment.resetRssItems(this.rssItems);
             rssItemsFragment.stopRefreshing();
         }
-
-
+        // remove the task from the map
+        rssAsyncTasksMap.remove(taskName);
     }
+
     @Override
     public void onRssItemsFragmentInteraction(String title, String contentHTML) {
+        // cancel all async tasks in the back ground
+
         String contentPlainText = Html.fromHtml(contentHTML).toString();
         ShowRssItemFeedFragment(title, contentPlainText);
     }
@@ -155,6 +177,6 @@ public class MainActivity extends Activity implements RssListener,
 
     @Override
     public void onRefresh() {
-        fetchRssItems("http://bucknellian.net/category/news/?json=1");
+        fetchRssItemsFromResources();
     }
 }
