@@ -13,6 +13,8 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import bucknell.edu.Data.RssResource;
@@ -162,10 +164,24 @@ public class MainActivity extends Activity implements RssListener,
         rssAsyncTasksMap.remove(taskName);
     }
 
+    public void cancelAllAsyncTasks() {
+        if (rssAsyncTasksMap == null)
+            return;
+        Iterator it = rssAsyncTasksMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            AsyncTask task = (AsyncTask) pairs.getValue();
+            task.cancel(true);
+            it.remove();
+        }
+    }
+
     @Override
     public void onRssItemsFragmentInteraction(String title, String contentHTML) {
-        // cancel all async tasks in the back ground
+        // cancel all the async tasks when users click on any item
+        cancelAllAsyncTasks();
 
+        // load and display the new fragment
         String contentPlainText = Html.fromHtml(contentHTML).toString();
         ShowRssItemFeedFragment(title, contentPlainText);
     }

@@ -50,6 +50,12 @@ public class RssJsonAsyncTask extends AsyncTask<String, Void, CopyOnWriteArrayLi
     }
 
     @Override
+    protected void onCancelled(CopyOnWriteArrayList<RssItem> result) {
+        // handle the onCancelled event of the task.
+        // Should not update the UI
+    }
+
+    @Override
     protected void onPostExecute(CopyOnWriteArrayList<RssItem> result){
         rssListener.onRssFinishLoading(taskName, result);
     }
