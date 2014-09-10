@@ -3,6 +3,7 @@ package bucknell.edu.Activities;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -74,7 +77,7 @@ public class MainActivity extends Activity implements RssListener,
     public void fetchRssItemsFromResources() {
         for (int i = 0; i < rssResources.size(); i++) {
             RssResource resource = rssResources.get(i);
-            RssJsonAsyncTask rssJsonAsyncTask = new RssJsonAsyncTask(resource.getName(), this);
+            RssJsonAsyncTask rssJsonAsyncTask = new RssJsonAsyncTask(resource, this);
             rssJsonAsyncTask.execute(resource.getUrl());
             rssAsyncTasksMap.put(resource.getName(), rssJsonAsyncTask);
         }
@@ -162,6 +165,34 @@ public class MainActivity extends Activity implements RssListener,
         }
         // remove the task from the map
         rssAsyncTasksMap.remove(taskName);
+
+        // update last update time
+        updateLastUpdateTime();
+
+        // update the latest Rss item date
+
+        updateLatestRssItemTime();
+    }
+
+    private void updateLatestRssItemTime() {
+        if (this.rssItems==null || this.rssItems.isEmpty())
+            return;
+        // get the first Rss Item
+        RssItem rssItem = this.rssItems.get(0);
+        long time = rssItem.getDateInLong();
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong("LatestRssItemTime", time);
+        editor.commit();
+    }
+
+    private void updateLastUpdateTime() {
+        Date date = Calendar.getInstance().getTime();
+        long time = date.getTime();
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong("LastUpdateTime", time);
+        editor.commit();
     }
 
     public void cancelAllAsyncTasks() {

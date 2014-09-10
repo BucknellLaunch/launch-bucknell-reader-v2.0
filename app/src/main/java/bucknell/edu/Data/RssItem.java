@@ -3,6 +3,10 @@ package bucknell.edu.Data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by boolli on 8/23/14.
  */
@@ -26,6 +30,16 @@ public class RssItem implements Parcelable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public long getDateInLong() {
+        try {
+            Date dateObject = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").parse(this.date);
+            return dateObject.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
 

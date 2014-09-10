@@ -38,6 +38,6 @@ public class RssXMLAsyncTask extends AsyncTask<String, Void, CopyOnWriteArrayLis
 
     @Override
     protected void onPostExecute(CopyOnWriteArrayList<RssItem> result){
-        rssListener.onRssFinishLoading(result);
+        rssListener.onRssFinishLoading("",result);
     }
 }

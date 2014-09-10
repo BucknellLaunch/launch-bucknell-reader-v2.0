@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import bucknell.edu.Data.RssItem;
+import bucknell.edu.Data.RssResource;
 import bucknell.edu.Interfaces.RssListener;
 
 /**
@@ -31,8 +32,9 @@ public class RssJsonAsyncTask extends AsyncTask<String, Void, CopyOnWriteArrayLi
     private RssListener rssListener;
     private String taskName;
 
-    public RssJsonAsyncTask(String taskName, Activity activity){
-        this.taskName = taskName;
+    public RssJsonAsyncTask(RssResource resource, Activity activity){
+
+        this.taskName = resource.getName();
         rssListener = (RssListener) activity;
         rssItems = new CopyOnWriteArrayList<RssItem>();
     }

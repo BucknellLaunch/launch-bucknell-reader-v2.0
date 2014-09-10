@@ -10,4 +10,6 @@
         <item>Bucknellian|http://bucknellian.net/category/news/?json=1</item>
     </string-array>
 
+    <string name = "RssDateFormat"></string>
+
 </resources>
