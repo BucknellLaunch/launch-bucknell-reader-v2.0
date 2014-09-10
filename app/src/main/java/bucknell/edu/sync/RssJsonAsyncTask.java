@@ -27,23 +27,26 @@ import bucknell.edu.Interfaces.RssListener;
 /**
  * Created by boolli on 8/24/14.
  */
-public class RssJsonAsyncTask extends AsyncTask<String, Void, CopyOnWriteArrayList<RssItem>> {
+public class RssJsonAsyncTask extends AsyncTask<Void, Void, CopyOnWriteArrayList<RssItem>> {
     private CopyOnWriteArrayList<RssItem> rssItems;
     private RssListener rssListener;
     private String taskName;
+    private String taskURL;
+    private String dateFormat;
 
     public RssJsonAsyncTask(RssResource resource, Activity activity){
 
         this.taskName = resource.getName();
+        this.taskURL = resource.getUrl();
+        this.dateFormat = resource.getDateFormat();
         rssListener = (RssListener) activity;
         rssItems = new CopyOnWriteArrayList<RssItem>();
     }
 
     @Override
-    protected CopyOnWriteArrayList<RssItem> doInBackground(String... strings) {
-        String url = strings[0];
+    protected CopyOnWriteArrayList<RssItem> doInBackground(Void... voids) {
         try {
-            JSONObject jObj = getJSONFromUrl(url);
+            JSONObject jObj = getJSONFromUrl(taskURL);
             parseJSONToList(jObj);
         } catch (Exception e){
             e.printStackTrace();
@@ -106,6 +109,7 @@ public class RssJsonAsyncTask extends AsyncTask<String, Void, CopyOnWriteArrayLi
                 for (int i = 0; i < posts.length(); i++){
                     JSONObject post = (JSONObject) posts.getJSONObject(i);
                     RssItem rssItem = new RssItem();
+                    rssItem.setDateFormat(dateFormat);
                     rssItem.setTitle(post.getString("title"));
                     rssItem.setLink(post.getString("url"));
                     rssItem.setContent(post.getString("content"));

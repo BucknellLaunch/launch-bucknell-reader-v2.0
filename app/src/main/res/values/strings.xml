@@ -7,7 +7,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string-array name="rss_sources">
-        <item>Bucknellian|http://bucknellian.net/category/news/?json=1</item>
+        <item>Bucknellian|http://bucknellian.net/category/news/?json=1|yyyy-MM-dd HH:mm:ss</item>
     </string-array>
 
     <string name = "RssDateFormat"></string>

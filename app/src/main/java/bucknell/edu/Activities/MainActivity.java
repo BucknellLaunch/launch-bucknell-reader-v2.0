@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -46,8 +47,8 @@ public class MainActivity extends Activity implements RssListener,
         rssResources = new ArrayList<RssResource>();
         String[] rssStringResources = getResources().getStringArray(R.array.rss_sources);
         for (String rssStringResource: rssStringResources) {
-            String[] splitResult = rssStringResource.split("\\|", 2);
-            RssResource rssResource = new RssResource(splitResult[0], splitResult[1]);
+            String[] splitResult = rssStringResource.split("\\|", 3);
+            RssResource rssResource = new RssResource(splitResult[0], splitResult[1], splitResult[2]);
             rssResources.add(rssResource);
         }
     }
@@ -78,7 +79,7 @@ public class MainActivity extends Activity implements RssListener,
         for (int i = 0; i < rssResources.size(); i++) {
             RssResource resource = rssResources.get(i);
             RssJsonAsyncTask rssJsonAsyncTask = new RssJsonAsyncTask(resource, this);
-            rssJsonAsyncTask.execute(resource.getUrl());
+            rssJsonAsyncTask.execute();
             rssAsyncTasksMap.put(resource.getName(), rssJsonAsyncTask);
         }
     }

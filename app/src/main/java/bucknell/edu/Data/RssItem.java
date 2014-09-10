@@ -15,6 +15,11 @@ public class RssItem implements Parcelable {
     private String link;
     private String content;
     private String date;
+    private String dateFormat;
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
 
     public void setDate(String date) {
         this.date = date;
@@ -34,7 +39,7 @@ public class RssItem implements Parcelable {
 
     public long getDateInLong() {
         try {
-            Date dateObject = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss").parse(this.date);
+            Date dateObject = new SimpleDateFormat(dateFormat).parse(this.date);
             return dateObject.getTime();
         } catch (ParseException e) {
             e.printStackTrace();

@@ -9,6 +9,9 @@ public class RssResource {
     String name;
     String url;
 
+
+    String dateFormat;
+
     public String getUrl() {
         return url;
     }
@@ -16,9 +19,15 @@ public class RssResource {
     public String getName() {
         return name;
     }
-    public RssResource(String name, String url){
+    public RssResource(String name, String url, String dateFormat){
         this.name = name;
         this.url = url;
+        this.dateFormat = dateFormat;
+    }
+
+
+    public String getDateFormat() {
+        return dateFormat;
     }
 
 
