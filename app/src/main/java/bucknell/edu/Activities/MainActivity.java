@@ -1,12 +1,16 @@
 package bucknell.edu.Activities;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
@@ -26,6 +30,7 @@ import bucknell.edu.Data.RssItem;
 import bucknell.edu.Fragments.RssItemFeedFragment;
 import bucknell.edu.Fragments.RssItemsFragment;
 import bucknell.edu.Interfaces.RssListener;
+import bucknell.edu.Services.RssUpdateService;
 import bucknell.edu.bucknellreader.R;
 import bucknell.edu.Fragments.SplashScreenFragment;
 import bucknell.edu.database.RssSQLiteDataSource;
@@ -42,6 +47,8 @@ public class MainActivity extends Activity implements RssListener,
     private RssSQLiteDataSource rssSQLiteDataSource;
     private ArrayList<RssResource> rssResources;
     private HashMap<String, AsyncTask> rssAsyncTasksMap;
+    private static final long INITIAL_ALARM_DELAY = 1000L;
+    private static final long ALARM_INTERVAL = 3000L;
 
     public void loadRssResources() {
         rssResources = new ArrayList<RssResource>();
@@ -53,12 +60,20 @@ public class MainActivity extends Activity implements RssListener,
         }
     }
 
+    public void setRssUpdateServiceAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
+        PendingIntent pendingRssUpdateServiceIntent = PendingIntent.getService(MainActivity.this, 0,rssUpdateServiceIntent, 0);
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + INITIAL_ALARM_DELAY, ALARM_INTERVAL, pendingRssUpdateServiceIntent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rssSQLiteDataSource = new RssSQLiteDataSource(this);
         rssSQLiteDataSource.open();
+        setRssUpdateServiceAlarm();
 
         // load the rss XML resources into the array list
         loadRssResources();
