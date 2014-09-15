@@ -5,12 +5,16 @@ import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.SystemClock;
@@ -50,22 +54,27 @@ public class MainActivity extends Activity implements RssListener,
     private RssSQLiteDataSource rssSQLiteDataSource;
     private ArrayList<RssResource> rssResources;
     private HashMap<String, AsyncTask> rssAsyncTasksMap;
+    private ServiceConnection rssUpdateServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            RssUpdateService.RssUpdateBinder rssUpdateBinder = (RssUpdateService.RssUpdateBinder) iBinder;
+            rssUpdateService = rssUpdateBinder.getService();
+            // mBound = true;
+/*            rssUpdateService.addRssListener(MainActivity.this);
+            rssUpdateService.fetchRssItemsFromResources();*/
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            rssUpdateService = null;
+            // mBound = false;
+        }
+    };
+    private RssUpdateService rssUpdateService;
     private static final long INITIAL_ALARM_DELAY = 1000L;
     private static final long ALARM_INTERVAL = 15000L;
 
-    public static class RssUpdateServiceHandler extends android.os.Handler {
-        @Override
-        public void handleMessage(Message message) {
-            int state = message.arg1;
-            switch (state) {
-                case RssUpdateService.MESSAGE_UPDATE_DATABASE:
-                    // update the UI from the database
-                    break;
-            }
-        }
-    }
 
-    public static Handler rssUpdateServiceHandler = new RssUpdateServiceHandler();
 
     public void loadRssResources() {
         rssResources = new ArrayList<RssResource>();
@@ -80,7 +89,6 @@ public class MainActivity extends Activity implements RssListener,
     public void setRssUpdateServiceAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
-        rssUpdateServiceIntent.putExtra("MESSENGER", new Messenger(rssUpdateServiceHandler));
         PendingIntent pendingRssUpdateServiceIntent = PendingIntent.getService(MainActivity.this, 0,rssUpdateServiceIntent, 0);
         alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + INITIAL_ALARM_DELAY, ALARM_INTERVAL, pendingRssUpdateServiceIntent);
         Log.i("Start alarm", "Start alarm");
@@ -107,7 +115,16 @@ public class MainActivity extends Activity implements RssListener,
             rssItems = rssSQLiteDataSource.getAllRssItems();
             ShowRssItemsFragment(rssItems);
         }
+
+        // this is just some test code to try out the service
+        Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
+        if (bindService(rssUpdateServiceIntent, rssUpdateServiceConnection, Context.BIND_AUTO_CREATE)) {
+            // rssUpdateService is still null right after the bindService method
+
+        }
     }
+
+
 
     public void fetchRssItemsFromResources() {
         for (int i = 0; i < rssResources.size(); i++) {
@@ -181,10 +198,11 @@ public class MainActivity extends Activity implements RssListener,
     @Override
     public void onRssFinishLoading(String taskName, CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
+        Log.i("success", "success");
 
         // if the database is empty, it means that it's the first time users open up the app. So need to update
         // the empty list with rss items and remove splash screen
-        if (rssSQLiteDataSource.isDatabaseEmpty()) {
+/*        if (rssSQLiteDataSource.isDatabaseEmpty()) {
             removeSplashScreen();
             // add rssItems into database
             if (rssItems != null)
@@ -206,7 +224,7 @@ public class MainActivity extends Activity implements RssListener,
 
         // update the latest Rss item date
 
-        updateLatestRssItemTime();
+        updateLatestRssItemTime();*/
     }
 
     private void updateLatestRssItemTime() {

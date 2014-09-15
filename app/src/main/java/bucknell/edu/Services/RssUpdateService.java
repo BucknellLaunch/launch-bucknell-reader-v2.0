@@ -3,16 +3,14 @@ package bucknell.edu.Services;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.Messenger;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Handler;
 
 import bucknell.edu.Data.RssItem;
 import bucknell.edu.Data.RssResource;
@@ -26,10 +24,23 @@ public class RssUpdateService extends Service implements RssListener{
     private CopyOnWriteArrayList<RssItem> rssItems;
     private ArrayList<RssResource> rssResources;
     private HashMap<String, AsyncTask> rssAsyncTasksMap;
-    private Messenger messenger;
+    private final IBinder binder = new RssUpdateBinder();
+    private RssListener rssListener;
     public static final int MESSAGE_UPDATE_DATABASE = 0;
 
-    public RssUpdateService() {
+    public class RssUpdateBinder extends Binder {
+        public RssUpdateService getService() {
+            return RssUpdateService.this;
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
+    public void addRssListener(RssListener listener) {
+        this.rssListener = listener;
     }
 
     public void loadRssResources() {
@@ -52,13 +63,6 @@ public class RssUpdateService extends Service implements RssListener{
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        Bundle extras = intent.getExtras();
-        messenger = (Messenger) extras.get("MESSENGER");
-
-    }
-
-    @Override
     public void onCreate() {
         Log.i("Services started", "OnCreate");
         rssSQLiteDataSource = new RssSQLiteDataSource(this);
@@ -69,23 +73,18 @@ public class RssUpdateService extends Service implements RssListener{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startid) {
-        // if the database is empty, then show splash screen and fetch Rss Items for the first time
         fetchRssItemsFromResources();
-
         Log.i("Start command", "start command");
         return START_NOT_STICKY;
-    }
-
-    public void sendMessage(int state) {
-        Message message = Message.obtain();
-        message.arg1 = state;
-
     }
 
     @Override
     public void onRssFinishLoading(String taskName, CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
         Log.i("Service finish refreshing", "Service finish refreshing");
+        if (rssListener != null) {
+            rssListener.onRssFinishLoading(taskName, this.rssItems);
+        }
         stopSelf();
     }
 }
