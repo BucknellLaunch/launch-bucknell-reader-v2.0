@@ -1,9 +1,5 @@
 package bucknell.edu.sync;
 
-import android.app.Activity;
-import android.os.AsyncTask;
-import android.util.Log;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -22,47 +18,52 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import bucknell.edu.Data.RssItem;
 import bucknell.edu.Data.RssResource;
-import bucknell.edu.Interfaces.RssListener;
 
 /**
- * Created by boolli on 8/24/14.
+ * Created by boolli on 9/13/14.
  */
-public class RssJsonAsyncTask extends AsyncTask<Void, Void, CopyOnWriteArrayList<RssItem>> {
+public class RssJsonTask {
     private CopyOnWriteArrayList<RssItem> rssItems;
-    private RssListener rssListener;
     private String taskName;
     private String taskURL;
     private String dateFormat;
 
-    public RssJsonAsyncTask(RssResource resource, RssListener rssListener){
-
+    public RssJsonTask(RssResource resource) {
         this.taskName = resource.getName();
         this.taskURL = resource.getUrl();
         this.dateFormat = resource.getDateFormat();
-        this.rssListener = rssListener;
         rssItems = new CopyOnWriteArrayList<RssItem>();
     }
 
-    @Override
-    protected CopyOnWriteArrayList<RssItem> doInBackground(Void... voids) {
+    public CopyOnWriteArrayList<RssItem> execute() {
         try {
             JSONObject jObj = getJSONFromUrl(taskURL);
             parseJSONToList(jObj);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return rssItems;
+        return this.rssItems;
     }
 
-    @Override
-    protected void onCancelled(CopyOnWriteArrayList<RssItem> result) {
-        // handle the onCancelled event of the task.
-        // Should not update the UI
-    }
-
-    @Override
-    protected void onPostExecute(CopyOnWriteArrayList<RssItem> result){
-        rssListener.onRssFinishLoading(taskName, result);
+    private void parseJSONToList(JSONObject json){
+        try {
+            if (json.getString("status").equalsIgnoreCase("ok")){
+                JSONArray posts = json.getJSONArray("posts");
+                for (int i = 0; i < posts.length(); i++){
+                    JSONObject post = (JSONObject) posts.getJSONObject(i);
+                    RssItem rssItem = new RssItem();
+                    rssItem.setDateFormat(dateFormat);
+                    rssItem.setTitle(post.getString("title"));
+                    rssItem.setLink(post.getString("url"));
+                    rssItem.setContent(post.getString("content"));
+                    rssItem.setDate(post.getString("date"));
+                    // get more info from JSON
+                    rssItems.add(rssItem);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private JSONObject getJSONFromUrl(String url) {
@@ -101,25 +102,4 @@ public class RssJsonAsyncTask extends AsyncTask<Void, Void, CopyOnWriteArrayList
         }
         return jObj;
     }
-
-    private void parseJSONToList(JSONObject json){
-        try {
-            if (json.getString("status").equalsIgnoreCase("ok")){
-                JSONArray posts = json.getJSONArray("posts");
-                for (int i = 0; i < posts.length(); i++){
-                    JSONObject post = (JSONObject) posts.getJSONObject(i);
-                    RssItem rssItem = new RssItem();
-                    rssItem.setDateFormat(dateFormat);
-                    rssItem.setTitle(post.getString("title"));
-                    rssItem.setLink(post.getString("url"));
-                    rssItem.setContent(post.getString("content"));
-                    rssItem.setDate(post.getString("date"));
-                    // get more info from JSON
-                    rssItems.add(rssItem);
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-}
+ }

@@ -10,6 +10,9 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.SystemClock;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
@@ -48,7 +51,21 @@ public class MainActivity extends Activity implements RssListener,
     private ArrayList<RssResource> rssResources;
     private HashMap<String, AsyncTask> rssAsyncTasksMap;
     private static final long INITIAL_ALARM_DELAY = 1000L;
-    private static final long ALARM_INTERVAL = 3000L;
+    private static final long ALARM_INTERVAL = 15000L;
+
+    public static class RssUpdateServiceHandler extends android.os.Handler {
+        @Override
+        public void handleMessage(Message message) {
+            int state = message.arg1;
+            switch (state) {
+                case RssUpdateService.MESSAGE_UPDATE_DATABASE:
+                    // update the UI from the database
+                    break;
+            }
+        }
+    }
+
+    public static Handler rssUpdateServiceHandler = new RssUpdateServiceHandler();
 
     public void loadRssResources() {
         rssResources = new ArrayList<RssResource>();
@@ -63,8 +80,10 @@ public class MainActivity extends Activity implements RssListener,
     public void setRssUpdateServiceAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
+        rssUpdateServiceIntent.putExtra("MESSENGER", new Messenger(rssUpdateServiceHandler));
         PendingIntent pendingRssUpdateServiceIntent = PendingIntent.getService(MainActivity.this, 0,rssUpdateServiceIntent, 0);
         alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + INITIAL_ALARM_DELAY, ALARM_INTERVAL, pendingRssUpdateServiceIntent);
+        Log.i("Start alarm", "Start alarm");
     }
 
     @Override
