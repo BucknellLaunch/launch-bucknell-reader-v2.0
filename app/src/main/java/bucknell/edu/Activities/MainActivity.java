@@ -59,15 +59,14 @@ public class MainActivity extends Activity implements RssListener,
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             RssUpdateService.RssUpdateBinder rssUpdateBinder = (RssUpdateService.RssUpdateBinder) iBinder;
             rssUpdateService = rssUpdateBinder.getService();
-            // mBound = true;
-/*            rssUpdateService.addRssListener(MainActivity.this);
-            rssUpdateService.fetchRssItemsFromResources();*/
+
+            rssUpdateService.setRssListener(MainActivity.this);
+            rssUpdateService.fetchRssItemsFromResources();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             rssUpdateService = null;
-            // mBound = false;
         }
     };
     private RssUpdateService rssUpdateService;
@@ -83,6 +82,15 @@ public class MainActivity extends Activity implements RssListener,
             String[] splitResult = rssStringResource.split("\\|", 3);
             RssResource rssResource = new RssResource(splitResult[0], splitResult[1], splitResult[2]);
             rssResources.add(rssResource);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (rssUpdateService != null) {
+            rssUpdateService.setRssListener(null);
+            unbindService(rssUpdateServiceConnection);
         }
     }
 
@@ -198,6 +206,7 @@ public class MainActivity extends Activity implements RssListener,
     @Override
     public void onRssFinishLoading(String taskName, CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
+        removeSplashScreen();
         Log.i("success", "success");
 
         // if the database is empty, it means that it's the first time users open up the app. So need to update

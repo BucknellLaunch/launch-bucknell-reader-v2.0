@@ -39,9 +39,10 @@ public class RssUpdateService extends Service implements RssListener{
         return binder;
     }
 
-    public void addRssListener(RssListener listener) {
+    public void setRssListener(RssListener listener) {
         this.rssListener = listener;
     }
+
 
     public void loadRssResources() {
         rssResources = new ArrayList<RssResource>();
