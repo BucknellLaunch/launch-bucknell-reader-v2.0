@@ -2,13 +2,10 @@ package bucknell.edu.Services;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import bucknell.edu.Data.RssItem;
@@ -25,7 +22,6 @@ public class RssUpdateService extends Service implements RssListener{
     private RssSQLiteDataSource rssSQLiteDataSource;
     private CopyOnWriteArrayList<RssItem> rssItems;
     private ArrayList<RssResource> rssResources;
-    private HashMap<String, AsyncTask> rssAsyncTasksMap;
     private final IBinder binder = new RssUpdateBinder();
     private RssListener rssListener;
 
@@ -60,7 +56,6 @@ public class RssUpdateService extends Service implements RssListener{
             RssResource resource = rssResources.get(i);
             RssJsonAsyncTask rssJsonAsyncTask = new RssJsonAsyncTask(resource, this);
             rssJsonAsyncTask.execute();
-            rssAsyncTasksMap.put(resource.getName(), rssJsonAsyncTask);
         }
     }
 
@@ -80,7 +75,6 @@ public class RssUpdateService extends Service implements RssListener{
         rssSQLiteDataSource = new RssSQLiteDataSource(this);
         rssSQLiteDataSource.open();
         loadRssResources();
-        rssAsyncTasksMap = new HashMap<String, AsyncTask>();
     }
 
     @Override
