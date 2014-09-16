@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -20,6 +19,7 @@ import bucknell.edu.database.RssSQLiteDataSource;
 import bucknell.edu.sync.RssJsonAsyncTask;
 
 public class RssUpdateService extends Service implements RssListener{
+    // TODO: move these two numbers into XML
     public static final long INITIAL_ALARM_DELAY = 1000L;
     public static final long ALARM_INTERVAL = 15000L;
     private RssSQLiteDataSource rssSQLiteDataSource;
@@ -77,7 +77,6 @@ public class RssUpdateService extends Service implements RssListener{
 
     @Override
     public void onCreate() {
-        Log.i("Services started", "OnCreate");
         rssSQLiteDataSource = new RssSQLiteDataSource(this);
         rssSQLiteDataSource.open();
         loadRssResources();
@@ -87,7 +86,6 @@ public class RssUpdateService extends Service implements RssListener{
     @Override
     public int onStartCommand(Intent intent, int flags, int startid) {
         fetchRssItemsFromResources();
-        Log.i("Start command", "start command");
         return START_NOT_STICKY;
     }
 
@@ -97,7 +95,6 @@ public class RssUpdateService extends Service implements RssListener{
         // update the database
         rssSQLiteDataSource.replaceDatabaseWithRssItems(this.rssItems);
 
-        Log.i("Service finish refreshing", "Service finish refreshing");
         if (rssListener != null) {
             rssListener.onRssFinishLoading(taskName, this.rssItems);
         }

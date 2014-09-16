@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -21,15 +20,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import bucknell.edu.Data.RssResource;
 import bucknell.edu.Data.RssItem;
 import bucknell.edu.Fragments.RssItemFeedFragment;
 import bucknell.edu.Fragments.RssItemsFragment;
@@ -37,8 +31,7 @@ import bucknell.edu.Interfaces.RssListener;
 import bucknell.edu.Services.RssUpdateService;
 import bucknell.edu.bucknellreader.R;
 import bucknell.edu.Fragments.SplashScreenFragment;
-import bucknell.edu.database.RssSQLiteDataSource;
-import bucknell.edu.sync.RssJsonAsyncTask;
+
 
 
 public class MainActivity extends Activity implements RssListener,
@@ -49,7 +42,8 @@ public class MainActivity extends Activity implements RssListener,
     private CopyOnWriteArrayList<RssItem> rssItems;
     private RssItemsFragment rssItemsFragment;
 
-    enum MainActivityState {ON_FETCHING_NEW_DATA, ON_REFRESHING, ON_HOLD };
+    // The state of the activity to indicate what the activity is doing right now
+    enum MainActivityState {ON_FETCHING_NEW_DATA, ON_REFRESHING, ON_HOLD }
     MainActivityState mainActivityState;
 
     private ServiceConnection rssUpdateServiceConnection = new ServiceConnection() {
@@ -59,6 +53,7 @@ public class MainActivity extends Activity implements RssListener,
             rssUpdateService = rssUpdateBinder.getService();
             rssUpdateService.setRssListener(MainActivity.this);
 
+            // TODO: move this into a seperate method
             if (rssUpdateService.isDatabaseEmpty()) {
                 addSplashScreen();
                 rssUpdateService.fetchRssItemsFromResources();
@@ -88,8 +83,6 @@ public class MainActivity extends Activity implements RssListener,
             http://stackoverflow.com/questions/12277673/android-services-error-service-not-registered*/
             rssUpdateService = null;
         }
-
-        Log.i("On Stop", "On Stop");
     }
 
     public void setRssUpdateServiceAlarm() {
@@ -97,7 +90,6 @@ public class MainActivity extends Activity implements RssListener,
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
         PendingIntent pendingRssUpdateServiceIntent = PendingIntent.getService(MainActivity.this, 0,rssUpdateServiceIntent, 0);
         alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + RssUpdateService.INITIAL_ALARM_DELAY, RssUpdateService.ALARM_INTERVAL, pendingRssUpdateServiceIntent);
-        Log.i("Start alarm", "Start alarm");
     }
 
     @Override
@@ -106,6 +98,7 @@ public class MainActivity extends Activity implements RssListener,
         setContentView(R.layout.activity_main);
         setRssUpdateServiceAlarm();
 
+        // TODO: move this into a separate method
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
         bindService(rssUpdateServiceIntent, rssUpdateServiceConnection, Context.BIND_AUTO_CREATE);
     }
@@ -158,8 +151,6 @@ public class MainActivity extends Activity implements RssListener,
         }
     }
 
-
-
     private void ShowRssItemFeedFragment(String title, String content) {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -197,6 +188,8 @@ public class MainActivity extends Activity implements RssListener,
             }
         }
 
+        // TODO: move these methods into the RssUpdateService class
+
         // update last update time
         updateLastUpdateTime();
 
@@ -214,7 +207,7 @@ public class MainActivity extends Activity implements RssListener,
         SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong("LatestRssItemTime", time);
-        editor.commit();
+        editor.apply();
     }
 
     private void updateLastUpdateTime() {
@@ -223,7 +216,7 @@ public class MainActivity extends Activity implements RssListener,
         SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong("LastUpdateTime", time);
-        editor.commit();
+        editor.apply();
     }
 
     public void cancelAllAsyncTasks() {
@@ -251,6 +244,7 @@ public class MainActivity extends Activity implements RssListener,
 
     @Override
     public void onRssItemFeedFragmentStop() {
+        // TODO: Move this into a separate method
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
         bindService(rssUpdateServiceIntent, rssUpdateServiceConnection, Context.BIND_AUTO_CREATE);
     }
