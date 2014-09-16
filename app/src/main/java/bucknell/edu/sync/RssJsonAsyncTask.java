@@ -62,6 +62,9 @@ public class RssJsonAsyncTask extends AsyncTask<Void, Void, CopyOnWriteArrayList
 
     @Override
     protected void onPostExecute(CopyOnWriteArrayList<RssItem> result){
+        if (result == null) {
+            Log.e("Result is null", "Result is null");
+        }
         rssListener.onRssFinishLoading(taskName, result);
     }
 

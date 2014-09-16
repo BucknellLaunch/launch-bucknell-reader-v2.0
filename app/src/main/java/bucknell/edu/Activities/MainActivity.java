@@ -13,10 +13,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
 import android.os.SystemClock;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
@@ -51,17 +48,26 @@ public class MainActivity extends Activity implements RssListener,
     private SplashScreenFragment splashScreenFragment;
     private CopyOnWriteArrayList<RssItem> rssItems;
     private RssItemsFragment rssItemsFragment;
-    private RssSQLiteDataSource rssSQLiteDataSource;
-    private ArrayList<RssResource> rssResources;
-    private HashMap<String, AsyncTask> rssAsyncTasksMap;
+
+    enum MainActivityState {ON_FETCHING_NEW_DATA, ON_REFRESHING, ON_HOLD };
+    MainActivityState mainActivityState;
+
     private ServiceConnection rssUpdateServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             RssUpdateService.RssUpdateBinder rssUpdateBinder = (RssUpdateService.RssUpdateBinder) iBinder;
             rssUpdateService = rssUpdateBinder.getService();
-
             rssUpdateService.setRssListener(MainActivity.this);
-            rssUpdateService.fetchRssItemsFromResources();
+
+            if (rssUpdateService.isDatabaseEmpty()) {
+                addSplashScreen();
+                rssUpdateService.fetchRssItemsFromResources();
+                mainActivityState = MainActivityState.ON_FETCHING_NEW_DATA;
+            } else {
+                rssItems = rssUpdateService.fetchRssItemsFromDatabase();
+                ShowRssItemsFragment(rssItems);
+                mainActivityState = MainActivityState.ON_HOLD;
+            }
         }
 
         @Override
@@ -70,20 +76,6 @@ public class MainActivity extends Activity implements RssListener,
         }
     };
     private RssUpdateService rssUpdateService;
-    private static final long INITIAL_ALARM_DELAY = 1000L;
-    private static final long ALARM_INTERVAL = 15000L;
-
-
-
-    public void loadRssResources() {
-        rssResources = new ArrayList<RssResource>();
-        String[] rssStringResources = getResources().getStringArray(R.array.rss_sources);
-        for (String rssStringResource: rssStringResources) {
-            String[] splitResult = rssStringResource.split("\\|", 3);
-            RssResource rssResource = new RssResource(splitResult[0], splitResult[1], splitResult[2]);
-            rssResources.add(rssResource);
-        }
-    }
 
     @Override
     public void onStop() {
@@ -91,14 +83,20 @@ public class MainActivity extends Activity implements RssListener,
         if (rssUpdateService != null) {
             rssUpdateService.setRssListener(null);
             unbindService(rssUpdateServiceConnection);
+/*          ServiceConnection.onServiceDisConnected() is not supposed to be called. So need to do this manually
+            Check out the link here:
+            http://stackoverflow.com/questions/12277673/android-services-error-service-not-registered*/
+            rssUpdateService = null;
         }
+
+        Log.i("On Stop", "On Stop");
     }
 
     public void setRssUpdateServiceAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
         PendingIntent pendingRssUpdateServiceIntent = PendingIntent.getService(MainActivity.this, 0,rssUpdateServiceIntent, 0);
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + INITIAL_ALARM_DELAY, ALARM_INTERVAL, pendingRssUpdateServiceIntent);
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + RssUpdateService.INITIAL_ALARM_DELAY, RssUpdateService.ALARM_INTERVAL, pendingRssUpdateServiceIntent);
         Log.i("Start alarm", "Start alarm");
     }
 
@@ -106,41 +104,10 @@ public class MainActivity extends Activity implements RssListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        rssSQLiteDataSource = new RssSQLiteDataSource(this);
-        rssSQLiteDataSource.open();
         setRssUpdateServiceAlarm();
 
-        // load the rss XML resources into the array list
-        loadRssResources();
-        rssAsyncTasksMap = new HashMap<String, AsyncTask>();
-
-        // if the database is empty, then show splash screen and fetch Rss Items for the first time
-        if (rssSQLiteDataSource.isDatabaseEmpty()) {
-            addSplashScreen();
-            fetchRssItemsFromResources();
-        } else {
-            // reads in the Rss Items from the database and renders them to RssItemsFragment
-            rssItems = rssSQLiteDataSource.getAllRssItems();
-            ShowRssItemsFragment(rssItems);
-        }
-
-        // this is just some test code to try out the service
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
-        if (bindService(rssUpdateServiceIntent, rssUpdateServiceConnection, Context.BIND_AUTO_CREATE)) {
-            // rssUpdateService is still null right after the bindService method
-
-        }
-    }
-
-
-
-    public void fetchRssItemsFromResources() {
-        for (int i = 0; i < rssResources.size(); i++) {
-            RssResource resource = rssResources.get(i);
-            RssJsonAsyncTask rssJsonAsyncTask = new RssJsonAsyncTask(resource, this);
-            rssJsonAsyncTask.execute();
-            rssAsyncTasksMap.put(resource.getName(), rssJsonAsyncTask);
-        }
+        bindService(rssUpdateServiceIntent, rssUpdateServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void addSplashScreen() {
@@ -179,14 +146,18 @@ public class MainActivity extends Activity implements RssListener,
     }
 
 
-
     private void ShowRssItemsFragment(CopyOnWriteArrayList<RssItem> rssItems) {
-        rssItemsFragment = new RssItemsFragment(rssItems);
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.rss_items, rssItemsFragment, "rss_items_fragment");
-        fragmentTransaction.commit();
+        if (rssItemsFragment == null) {
+            rssItemsFragment = new RssItemsFragment(rssItems);
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.rss_items, rssItemsFragment, "rss_items_fragment");
+            fragmentTransaction.commit();
+        } else {
+            rssItemsFragment.resetRssItems(rssItems);
+        }
     }
+
 
 
     private void ShowRssItemFeedFragment(String title, String content) {
@@ -206,34 +177,32 @@ public class MainActivity extends Activity implements RssListener,
     @Override
     public void onRssFinishLoading(String taskName, CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
-        removeSplashScreen();
         Log.i("success", "success");
 
-        // if the database is empty, it means that it's the first time users open up the app. So need to update
-        // the empty list with rss items and remove splash screen
-/*        if (rssSQLiteDataSource.isDatabaseEmpty()) {
+        // if the current state is on_fetching_new_data
+        if (mainActivityState == MainActivityState.ON_FETCHING_NEW_DATA) {
             removeSplashScreen();
-            // add rssItems into database
-            if (rssItems != null)
-                rssSQLiteDataSource.addRssItems(this.rssItems);
-
-            // * still need to store the most recent data so the app knows when to update itself
             ShowRssItemsFragment(rssItems);
+            mainActivityState = MainActivityState.ON_HOLD;
 
-        } else { // if the database is not empty, then it is because users swipe to refresh the list.
-            rssSQLiteDataSource.replaceDatabaseWithRssItems(this.rssItems);
+        } else if (mainActivityState == MainActivityState.ON_REFRESHING) { // if the current state is on_refreshing
             rssItemsFragment.resetRssItems(this.rssItems);
             rssItemsFragment.stopRefreshing();
+            mainActivityState = MainActivityState.ON_HOLD;
+        } else {
+            // stop refreshing or remove splash screen anyway
+            rssItemsFragment.stopRefreshing();
+            if (splashScreenFragment != null) {
+                removeSplashScreen();
+            }
         }
-        // remove the task from the map
-        rssAsyncTasksMap.remove(taskName);
 
         // update last update time
         updateLastUpdateTime();
 
         // update the latest Rss item date
 
-        updateLatestRssItemTime();*/
+        updateLatestRssItemTime();
     }
 
     private void updateLatestRssItemTime() {
@@ -258,15 +227,7 @@ public class MainActivity extends Activity implements RssListener,
     }
 
     public void cancelAllAsyncTasks() {
-        if (rssAsyncTasksMap == null)
-            return;
-        Iterator it = rssAsyncTasksMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
-            AsyncTask task = (AsyncTask) pairs.getValue();
-            task.cancel(true);
-            it.remove();
-        }
+
     }
 
     @Override
@@ -280,12 +241,28 @@ public class MainActivity extends Activity implements RssListener,
     }
 
     @Override
+    public void onRssItemFeedFragmentStart() {
+        if (rssUpdateService != null) {
+            rssUpdateService.setRssListener(null);
+            unbindService(rssUpdateServiceConnection);
+        }
+        Log.i("On RssItemsFragmentStart", "On RssItemsFragmentStart");
+    }
+
+    @Override
+    public void onRssItemFeedFragmentStop() {
+        Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
+        bindService(rssUpdateServiceIntent, rssUpdateServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
     public void onRssItemFeedFragmentInteraction(Uri uri) {
         // handle any interaction event on the "show" page
     }
 
     @Override
     public void onRefresh() {
-        fetchRssItemsFromResources();
+        rssUpdateService.fetchRssItemsFromResources();
+        mainActivityState = MainActivityState.ON_REFRESHING;
     }
 }

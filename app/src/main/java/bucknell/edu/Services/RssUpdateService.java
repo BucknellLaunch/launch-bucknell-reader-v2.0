@@ -20,13 +20,14 @@ import bucknell.edu.database.RssSQLiteDataSource;
 import bucknell.edu.sync.RssJsonAsyncTask;
 
 public class RssUpdateService extends Service implements RssListener{
+    public static final long INITIAL_ALARM_DELAY = 1000L;
+    public static final long ALARM_INTERVAL = 15000L;
     private RssSQLiteDataSource rssSQLiteDataSource;
     private CopyOnWriteArrayList<RssItem> rssItems;
     private ArrayList<RssResource> rssResources;
     private HashMap<String, AsyncTask> rssAsyncTasksMap;
     private final IBinder binder = new RssUpdateBinder();
     private RssListener rssListener;
-    public static final int MESSAGE_UPDATE_DATABASE = 0;
 
     public class RssUpdateBinder extends Binder {
         public RssUpdateService getService() {
@@ -63,6 +64,17 @@ public class RssUpdateService extends Service implements RssListener{
         }
     }
 
+    public boolean isDatabaseEmpty() {
+        if (rssSQLiteDataSource == null)
+            return true;
+        return rssSQLiteDataSource.isDatabaseEmpty();
+    }
+
+    public CopyOnWriteArrayList<RssItem> fetchRssItemsFromDatabase() {
+        this.rssItems = rssSQLiteDataSource.getAllRssItems();
+        return this.rssItems;
+    }
+
     @Override
     public void onCreate() {
         Log.i("Services started", "OnCreate");
@@ -82,6 +94,9 @@ public class RssUpdateService extends Service implements RssListener{
     @Override
     public void onRssFinishLoading(String taskName, CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
+        // update the database
+        rssSQLiteDataSource.replaceDatabaseWithRssItems(this.rssItems);
+
         Log.i("Service finish refreshing", "Service finish refreshing");
         if (rssListener != null) {
             rssListener.onRssFinishLoading(taskName, this.rssItems);

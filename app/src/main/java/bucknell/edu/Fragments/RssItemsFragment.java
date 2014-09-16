@@ -116,6 +116,8 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
     }
 
 
+
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (null != mListener) {
@@ -146,7 +148,8 @@ public class RssItemsFragment extends Fragment implements AbsListView.OnItemClic
 
     public void stopRefreshing(){
         SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) getView().findViewById(R.id.swipe_refresh_view);
-        swipeRefreshLayout.setRefreshing(false);
+        if (swipeRefreshLayout != null)
+            swipeRefreshLayout.setRefreshing(false);
     }
 
     /**

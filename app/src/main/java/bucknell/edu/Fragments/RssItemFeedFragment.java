@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,6 +96,7 @@ public class RssItemFeedFragment extends Fragment {
         super.onAttach(activity);
         try {
             mListener = (OnRssItemFeedFragmentInteractionListener) activity;
+            mListener.onRssItemFeedFragmentStart();
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnRssItemFeedFragmentInteractionListener");
@@ -108,6 +110,12 @@ public class RssItemFeedFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        mListener.onRssItemFeedFragmentStop();
+        Log.i("RssItemFeedFragment OnStop", "RssItemFeedFragment OnStop");
+    }
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -120,6 +128,8 @@ public class RssItemFeedFragment extends Fragment {
      */
     public interface OnRssItemFeedFragmentInteractionListener {
         public void onRssItemFeedFragmentInteraction(Uri uri);
+        public void onRssItemFeedFragmentStart();
+        public void onRssItemFeedFragmentStop();
     }
 
 }
