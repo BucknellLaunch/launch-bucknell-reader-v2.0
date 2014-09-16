@@ -77,6 +77,8 @@ public class MainActivity extends Activity implements RssListener,
         super.onStop();
         if (rssUpdateService != null) {
             rssUpdateService.setRssListener(null);
+/*            remember to unbind the service when the activity exits. Otherwise ServiceConnectionLeaked will be raised
+            http://stackoverflow.com/questions/18575903/serviceconnectionleaked-in-android*/
             unbindService(rssUpdateServiceConnection);
 /*          ServiceConnection.onServiceDisConnected() is not supposed to be called. So need to do this manually
             Check out the link here:
