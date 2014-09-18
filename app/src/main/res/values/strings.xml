@@ -5,6 +5,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="shared_preferences_file_name">Bucknell_Reader_Shared_Preferences</string>
+    <string name="shared_preferences_latest_rss_item_time">LatestRssItemTime</string>
+    <string name="shared_preferences_last_update_time">LastUpdateTime</string>
 
     <string-array name="rss_sources">
         <item>Bucknellian|http://bucknellian.net/category/news/?json=1|yyyy-MM-dd HH:mm:ss</item>

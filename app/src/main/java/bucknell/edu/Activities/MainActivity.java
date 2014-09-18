@@ -9,7 +9,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -20,8 +19,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import bucknell.edu.Data.RssItem;
@@ -189,36 +186,6 @@ public class MainActivity extends Activity implements RssListener,
                 removeSplashScreen();
             }
         }
-
-        // TODO: move these methods into the RssUpdateService class
-
-        // update last update time
-        updateLastUpdateTime();
-
-        // update the latest Rss item date
-
-        updateLatestRssItemTime();
-    }
-
-    private void updateLatestRssItemTime() {
-        if (this.rssItems==null || this.rssItems.isEmpty())
-            return;
-        // get the first Rss Item
-        RssItem rssItem = this.rssItems.get(0);
-        long time = rssItem.getDateInLong();
-        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong("LatestRssItemTime", time);
-        editor.apply();
-    }
-
-    private void updateLastUpdateTime() {
-        Date date = Calendar.getInstance().getTime();
-        long time = date.getTime();
-        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong("LastUpdateTime", time);
-        editor.apply();
     }
 
     public void cancelAllAsyncTasks() {

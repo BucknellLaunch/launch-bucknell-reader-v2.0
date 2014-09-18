@@ -1,11 +1,15 @@
 package bucknell.edu.Services;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import bucknell.edu.Data.RssItem;
@@ -70,6 +74,27 @@ public class RssUpdateService extends Service implements RssListener{
         return this.rssItems;
     }
 
+    private void updateLatestRssItemTime() {
+        if (rssItems==null || rssItems.isEmpty())
+            return;
+        // get the first Rss Item
+        RssItem rssItem = rssItems.get(0);
+        long time = rssItem.getDateInLong();
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences(getString(R.string.shared_preferences_file_name), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong(getString(R.string.shared_preferences_latest_rss_item_time), time);
+        editor.apply();
+    }
+
+    private void updateLastUpdateTime() {
+        Date date = Calendar.getInstance().getTime();
+        long time = date.getTime();
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences(getString(R.string.shared_preferences_file_name), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong(getString(R.string.shared_preferences_last_update_time), time);
+        editor.apply();
+    }
+
     @Override
     public void onCreate() {
         rssSQLiteDataSource = new RssSQLiteDataSource(this);
@@ -88,6 +113,8 @@ public class RssUpdateService extends Service implements RssListener{
         this.rssItems = rssItems;
         // update the database
         rssSQLiteDataSource.replaceDatabaseWithRssItems(this.rssItems);
+        updateLatestRssItemTime();
+        updateLastUpdateTime();
 
         if (rssListener != null) {
             rssListener.onRssFinishLoading(taskName, this.rssItems);
