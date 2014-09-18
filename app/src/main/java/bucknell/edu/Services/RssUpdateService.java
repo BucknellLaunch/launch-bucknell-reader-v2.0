@@ -20,9 +20,6 @@ import bucknell.edu.database.RssSQLiteDataSource;
 import bucknell.edu.sync.RssJsonAsyncTask;
 
 public class RssUpdateService extends Service implements RssListener{
-    // TODO: move these two numbers into XML
-    public static final long INITIAL_ALARM_DELAY = 1000L;
-    public static final long ALARM_INTERVAL = 15000L;
     private RssSQLiteDataSource rssSQLiteDataSource;
     private CopyOnWriteArrayList<RssItem> rssItems;
     private ArrayList<RssResource> rssResources;

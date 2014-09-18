@@ -9,6 +9,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -50,7 +51,6 @@ public class MainActivity extends Activity implements RssListener,
             rssUpdateService = rssUpdateBinder.getService();
             rssUpdateService.setRssListener(MainActivity.this);
 
-            // TODO: move this into a seperate method
             if (rssUpdateService.isDatabaseEmpty()) {
                 addSplashScreen();
                 rssUpdateService.fetchRssItemsFromResources();
@@ -88,7 +88,8 @@ public class MainActivity extends Activity implements RssListener,
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
         PendingIntent pendingRssUpdateServiceIntent = PendingIntent.getService(MainActivity.this, 0,rssUpdateServiceIntent, 0);
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + RssUpdateService.INITIAL_ALARM_DELAY, RssUpdateService.ALARM_INTERVAL, pendingRssUpdateServiceIntent);
+        Resources res = getResources();
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + res.getInteger(R.integer.rss_update_service_initial_alarm_delay), res.getInteger(R.integer.rss_update_service_alarm_interval), pendingRssUpdateServiceIntent);
     }
 
     @Override
@@ -96,8 +97,10 @@ public class MainActivity extends Activity implements RssListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setRssUpdateServiceAlarm();
+        bindRssUpdateService();
+    }
 
-        // TODO: move this into a separate method
+    private void bindRssUpdateService() {
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
         bindService(rssUpdateServiceIntent, rssUpdateServiceConnection, Context.BIND_AUTO_CREATE);
     }
@@ -188,15 +191,8 @@ public class MainActivity extends Activity implements RssListener,
         }
     }
 
-    public void cancelAllAsyncTasks() {
-
-    }
-
     @Override
     public void onRssItemsFragmentInteraction(String title, String contentHTML) {
-        // cancel all the async tasks when users click on any item
-        cancelAllAsyncTasks();
-
         // load and display the new fragment
         String contentPlainText = Html.fromHtml(contentHTML).toString();
         ShowRssItemFeedFragment(title, contentPlainText);
@@ -213,9 +209,7 @@ public class MainActivity extends Activity implements RssListener,
 
     @Override
     public void onRssItemFeedFragmentStop() {
-        // TODO: Move this into a separate method
-        Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
-        bindService(rssUpdateServiceIntent, rssUpdateServiceConnection, Context.BIND_AUTO_CREATE);
+        bindRssUpdateService();
     }
 
     @Override
