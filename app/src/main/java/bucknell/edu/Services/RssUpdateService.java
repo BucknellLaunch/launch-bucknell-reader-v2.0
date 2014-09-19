@@ -26,6 +26,7 @@ public class RssUpdateService extends Service implements RssListener{
     private final IBinder binder = new RssUpdateBinder();
     private RssListener rssListener;
 
+
     public class RssUpdateBinder extends Binder {
         public RssUpdateService getService() {
             return RssUpdateService.this;
@@ -92,6 +93,20 @@ public class RssUpdateService extends Service implements RssListener{
         editor.apply();
     }
 
+    private boolean hasNewRssItems () {
+        return false;
+    }
+
+    private void sendPushNotifications () {
+
+    }
+
+    private void checkAndSendPushNotifications() {
+        if (hasNewRssItems()) {
+            sendPushNotifications();
+        }
+    }
+
     @Override
     public void onCreate() {
         rssSQLiteDataSource = new RssSQLiteDataSource(this);
@@ -110,6 +125,7 @@ public class RssUpdateService extends Service implements RssListener{
         this.rssItems = rssItems;
         // update the database
         rssSQLiteDataSource.replaceDatabaseWithRssItems(this.rssItems);
+        checkAndSendPushNotifications();
         updateLatestRssItemTime();
         updateLastUpdateTime();
 
