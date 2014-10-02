@@ -120,6 +120,13 @@ public class MainActivity extends Activity implements RssListener,
         fragmentTransaction.commit();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        // the activity will receive the intent when users start it from the push notifications
+        // TODO: parse the intent and start the corresponding fragment
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
