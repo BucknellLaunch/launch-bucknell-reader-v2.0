@@ -118,16 +118,21 @@ public class RssUpdateService extends Service implements RssListener{
         // set the flag of the intent to FLAG_ACTIVITY_SINGLE_TOP
         // http://stackoverflow.com/questions/1198558/how-to-send-parameters-from-a-notification-click-to-an-activity
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        //TODO: put extra to the intent so the activity knows which articles to open up
+        // we have already made sure that this.rssItems is not null in checkAndSendPushNotifications() function
+        RssItem item = this.rssItems.get(0);
+        String title = item.getTitle();
+        String content = item.getContent();
+        intent.putExtra("title", title);
+        intent.putExtra("content", content);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification.Builder builder = new Notification.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("New Article from Bucknellian!")
+                .setSmallIcon(R.drawable.launch_logo)
+                .setContentTitle(title)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                .setContentText("new article");
+                .setContentText(content);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(1,builder.build());

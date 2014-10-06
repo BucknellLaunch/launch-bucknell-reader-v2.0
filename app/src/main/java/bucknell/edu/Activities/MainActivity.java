@@ -57,7 +57,7 @@ public class MainActivity extends Activity implements RssListener,
                 mainActivityState = MainActivityState.ON_FETCHING_NEW_DATA;
             } else {
                 rssItems = rssUpdateService.fetchRssItemsFromDatabase();
-                ShowRssItemsFragment(rssItems);
+                showRssItemsFragment(rssItems);
                 mainActivityState = MainActivityState.ON_HOLD;
             }
         }
@@ -124,7 +124,9 @@ public class MainActivity extends Activity implements RssListener,
     protected void onNewIntent(Intent intent) {
         // the activity will receive the intent when users start it from the push notifications
         // TODO: parse the intent and start the corresponding fragment
-
+        String title = intent.getStringExtra("title");
+        String content = intent.getStringExtra("content");
+        showRssItemFeedFragment(title,content);
     }
 
 
@@ -148,7 +150,7 @@ public class MainActivity extends Activity implements RssListener,
     }
 
 
-    private void ShowRssItemsFragment(CopyOnWriteArrayList<RssItem> rssItems) {
+    private void showRssItemsFragment(CopyOnWriteArrayList<RssItem> rssItems) {
         if (rssItemsFragment == null) {
             rssItemsFragment = new RssItemsFragment(rssItems);
             FragmentManager fragmentManager = getFragmentManager();
@@ -160,7 +162,7 @@ public class MainActivity extends Activity implements RssListener,
         }
     }
 
-    private void ShowRssItemFeedFragment(String title, String content) {
+    private void showRssItemFeedFragment(String title, String content) {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.rss_items, RssItemFeedFragment.newInstance(title, content), "rss_item_feed_fragment");
@@ -182,7 +184,7 @@ public class MainActivity extends Activity implements RssListener,
         // if the current state is on_fetching_new_data
         if (mainActivityState == MainActivityState.ON_FETCHING_NEW_DATA) {
             removeSplashScreen();
-            ShowRssItemsFragment(rssItems);
+            showRssItemsFragment(rssItems);
             mainActivityState = MainActivityState.ON_HOLD;
 
         } else if (mainActivityState == MainActivityState.ON_REFRESHING) { // if the current state is on_refreshing
@@ -202,7 +204,7 @@ public class MainActivity extends Activity implements RssListener,
     public void onRssItemsFragmentInteraction(String title, String contentHTML) {
         // load and display the new fragment
         String contentPlainText = Html.fromHtml(contentHTML).toString();
-        ShowRssItemFeedFragment(title, contentPlainText);
+        showRssItemFeedFragment(title, contentPlainText);
     }
 
     @Override
