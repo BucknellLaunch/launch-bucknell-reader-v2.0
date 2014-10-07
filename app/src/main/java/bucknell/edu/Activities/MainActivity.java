@@ -58,6 +58,7 @@ public class MainActivity extends Activity implements RssListener,
             } else {
                 rssItems = rssUpdateService.fetchRssItemsFromDatabase();
                 showRssItemsFragment(rssItems);
+                onNewIntent(getIntent());
                 mainActivityState = MainActivityState.ON_HOLD;
             }
         }
@@ -124,9 +125,14 @@ public class MainActivity extends Activity implements RssListener,
     protected void onNewIntent(Intent intent) {
         // the activity will receive the intent when users start it from the push notifications
         // TODO: parse the intent and start the corresponding fragment
-        String title = intent.getStringExtra("title");
-        String content = intent.getStringExtra("content");
-        showRssItemFeedFragment(title,content);
+        Bundle bundle = intent.getExtras();
+        if (bundle != null) {
+            String title = bundle.getString("title");
+            String contentPlainText = Html.fromHtml(bundle.getString("content")).toString();
+            showRssItemFeedFragment(title, contentPlainText);
+            // update the intent to be an empty intent
+            setIntent(new Intent());
+        }
     }
 
 

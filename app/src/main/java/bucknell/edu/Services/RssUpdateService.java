@@ -141,7 +141,7 @@ public class RssUpdateService extends Service implements RssListener{
     private void checkAndSendPushNotifications() {
         if (this.rssItems == null || this.rssItems.size() == 0)
             return;
-        if (hasNewRssItems() && this.rssListener == null) {
+        if (hasNewRssItems()) {
             sendPushNotifications();
         }
     }
