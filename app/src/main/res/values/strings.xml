@@ -13,6 +13,6 @@
         <item>Bucknellian|http://bucknellian.net/category/news/?json=1|yyyy-MM-dd HH:mm:ss</item>
     </string-array>
 
-    <string name = "RssDateFormat"></string>
+    <string name="RssDateFormat"></string>
 
 </resources>
