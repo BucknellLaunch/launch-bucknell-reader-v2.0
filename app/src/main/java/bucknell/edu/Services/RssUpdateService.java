@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
+import android.text.Html;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -122,6 +123,8 @@ public class RssUpdateService extends Service implements RssListener{
         RssItem item = this.rssItems.get(0);
         String title = item.getTitle();
         String content = item.getContent();
+        content = Html.fromHtml(content).toString();
+
         intent.putExtra("title", title);
         intent.putExtra("content", content);
 
@@ -141,7 +144,7 @@ public class RssUpdateService extends Service implements RssListener{
     private void checkAndSendPushNotifications() {
         if (this.rssItems == null || this.rssItems.size() == 0)
             return;
-        if (hasNewRssItems()) {
+        if (hasNewRssItems() && this.rssListener == null) {
             sendPushNotifications();
         }
     }

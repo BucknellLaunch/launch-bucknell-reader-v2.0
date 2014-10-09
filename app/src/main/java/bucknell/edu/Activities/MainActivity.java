@@ -128,8 +128,8 @@ public class MainActivity extends Activity implements RssListener,
         Bundle bundle = intent.getExtras();
         if (bundle != null) {
             String title = bundle.getString("title");
-            String contentPlainText = Html.fromHtml(bundle.getString("content")).toString();
-            showRssItemFeedFragment(title, contentPlainText);
+            String content = bundle.getString("content");
+            showRssItemFeedFragment(title, content);
             // update the intent to be an empty intent
             setIntent(new Intent());
         }
