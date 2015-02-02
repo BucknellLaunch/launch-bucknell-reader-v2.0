@@ -4,7 +4,7 @@ This is a Service class to download RSS feeds in the background and update the m
 
 ## How does it work?
 
-This service is started by MainActivity either when the user opens up the app or swipes down the view to refresh the list. Since Services are running in the main thread (UI thread) of the hosting process, it still needs to use AsyncTask to download the Rss feeds. Once the Service is started, the onCreated() method is triggered, in which it simply opens the database and load the Rss resources, which will be used later to download the Rss feeds. 
+This service is started by MainActivity either when the user opens up the app or swipes down the view to refresh the list. Since Services are running in the main thread (UI thread) of the hosting process, it still needs to use AsyncTask to download the Rss feeds. Once the Service is started, the onCreated() method is triggered, in which it simply opens the database and loads the Rss resources, which will be used later to download the Rss feeds. 
 
 From now on different methods will be called depending on how the service is started. If the service is started by the activity using bindService() ,a binder will be passed down to the hosting activity so that it can access the Service. This is done by the onBind() method, which creates a RssUpdateBinder object extended from Binder. The RssUpdateBinder class has a getService() method, so that once the activity gets the binder from onServiceConnected(), it can retrieve the service by calling the getService().
 

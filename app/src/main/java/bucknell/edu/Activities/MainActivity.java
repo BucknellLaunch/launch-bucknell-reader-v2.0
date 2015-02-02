@@ -45,6 +45,8 @@ public class MainActivity extends Activity implements RssListener,
     MainActivityState mainActivityState;
 
     private ServiceConnection rssUpdateServiceConnection = new ServiceConnection() {
+        // this object will communicate directly with the service once it is bound to the activity.
+        // On the other hand, since this object has access to the main activity, it can communicate with the activity as well.
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             RssUpdateService.RssUpdateBinder rssUpdateBinder = (RssUpdateService.RssUpdateBinder) iBinder;
@@ -97,12 +99,16 @@ public class MainActivity extends Activity implements RssListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // sets alarm for automatically updating feeds even when the program is not running.
         setRssUpdateServiceAlarm();
+        // binds to the activity the RssUpdateService, which will check and update the feed
         bindRssUpdateService();
     }
 
     private void bindRssUpdateService() {
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
+        // the service bound to the activity will be received by an object called rssUpdateServiceConnection,
+        // which will be the responsible of communicating between the activity and the service.
         bindService(rssUpdateServiceIntent, rssUpdateServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
