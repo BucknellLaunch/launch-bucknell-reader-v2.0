@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.text.Html;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,6 +34,7 @@ public class RssUpdateService extends Service implements RssListener{
     private ArrayList<RssResource> rssResources;
     private final IBinder binder = new RssUpdateBinder();
     private RssListener rssListener;
+    private Integer startid;
 
 
     public class RssUpdateBinder extends Binder {
@@ -159,21 +161,43 @@ public class RssUpdateService extends Service implements RssListener{
     @Override
     public int onStartCommand(Intent intent, int flags, int startid) {
         fetchRssItemsFromResources();
+        this.startid = startid;
         return START_NOT_STICKY;
     }
 
     @Override
+    public void onLowMemory() {
+        Log.i("RssUpdateService", "low memory");
+        super.onLowMemory();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i("RssUpdateServie", "onDestroy");
+        if (this.startid != null && this.rssSQLiteDataSource != null) {
+            Log.i("RssUpdateService", "closing database");
+            rssSQLiteDataSource.close();
+        }
+        super.onDestroy();
+    }
+
+    @Override
     public void onRssFinishLoading(String taskName, CopyOnWriteArrayList<RssItem> rssItems) {
+        Log.i("RssUpdateService", "onRssFinishLoading");
         this.rssItems = rssItems;
         // update the database
-        rssSQLiteDataSource.replaceDatabaseWithRssItems(this.rssItems);
-        checkAndSendPushNotifications();
-        updateLatestRssItemTime();
-        updateLastUpdateTime();
+        try {
+            rssSQLiteDataSource.replaceDatabaseWithRssItems(this.rssItems);
+            checkAndSendPushNotifications();
+            updateLatestRssItemTime();
+            updateLastUpdateTime();
 
-        if (rssListener != null) {
-            rssListener.onRssFinishLoading(taskName, this.rssItems);
+            if (rssListener != null) {
+                rssListener.onRssFinishLoading(taskName, this.rssItems);
+            }
+            stopSelf();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        stopSelf();
     }
 }

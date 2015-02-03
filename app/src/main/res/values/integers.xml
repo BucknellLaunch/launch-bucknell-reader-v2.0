@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="rss_update_service_initial_alarm_delay">1000</integer>
-    <integer name="rss_update_service_alarm_interval">15000</integer>
+    <integer name="rss_update_service_alarm_interval">6000</integer>
 </resources>

@@ -196,7 +196,7 @@ public class MainActivity extends Activity implements RssListener,
     @Override
     public void onRssFinishLoading(String taskName, CopyOnWriteArrayList<RssItem> rssItems) {
         this.rssItems = rssItems;
-        Log.i("success", "success");
+        Log.i("MainActivity", "Rss Finish Loading. Running onRssFinishLoading");
 
         // if the current state is on_fetching_new_data
         if (mainActivityState == MainActivityState.ON_FETCHING_NEW_DATA) {
