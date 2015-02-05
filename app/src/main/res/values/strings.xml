@@ -8,6 +8,20 @@
     <string name="shared_preferences_file_name">Bucknell_Reader_Shared_Preferences</string>
     <string name="shared_preferences_latest_rss_item_time">LatestRssItemTime</string>
     <string name="shared_preferences_last_update_time">LastUpdateTime</string>
+    <string name="pref_update_frequency">Update Frequency</string>
+    <string-array name="pref_update_frequency_values">
+        <item>24</item>
+        <item>120</item>
+        <item>240</item>
+        <item>480</item>
+    </string-array>
+
+    <string-array name="pref_update_frequency_titles">
+        <item>1 day</item>
+        <item>5 days</item>
+        <item>10 days</item>
+        <item>20 days</item>
+    </string-array>
 
     <string-array name="rss_sources">
         <item>Bucknellian|http://bucknellian.net/category/news/?json=1|yyyy-MM-dd HH:mm:ss</item>

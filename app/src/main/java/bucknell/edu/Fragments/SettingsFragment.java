@@ -1,10 +1,14 @@
 package bucknell.edu.Fragments;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.preference.PreferenceFragment;
+import android.util.Log;
 
 import bucknell.edu.bucknellreader.R;
 
@@ -15,7 +19,7 @@ import bucknell.edu.bucknellreader.R;
  * to handle interaction events.
  *
  */
-public class SettingsFragment extends PreferenceFragment {
+public class SettingsFragment extends PreferenceFragment{
     private OnSettingsFragmentInteractionListener mListener;
 
     public SettingsFragment() {
@@ -59,6 +63,8 @@ public class SettingsFragment extends PreferenceFragment {
         super.onDetach();
         mListener = null;
     }
+
+
 
     /**
      * This interface must be implemented by activities that contain this

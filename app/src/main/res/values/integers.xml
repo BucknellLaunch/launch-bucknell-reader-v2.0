@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="rss_update_service_initial_alarm_delay">1000</integer>
-    <integer name="rss_update_service_alarm_interval">6000</integer>
+
+    <!-- initial update frequency in seconds -->
+    <integer name="initial_update_delay">1</integer>
+
+    <!-- default update frequency in hours -->
+    <integer name="default_update_frequency">24</integer>
 </resources>

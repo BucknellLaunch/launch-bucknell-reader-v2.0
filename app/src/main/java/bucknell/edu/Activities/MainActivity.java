@@ -9,11 +9,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
@@ -35,7 +37,7 @@ import bucknell.edu.Fragments.SplashScreenFragment;
 public class MainActivity extends Activity implements RssListener,
         RssItemsFragment.OnRssItemsFragmentInteractionListener,
         RssItemFeedFragment.OnRssItemFeedFragmentInteractionListener,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener{
     private SplashScreenFragment splashScreenFragment;
     private CopyOnWriteArrayList<RssItem> rssItems;
     private RssItemsFragment rssItemsFragment;
@@ -92,7 +94,14 @@ public class MainActivity extends Activity implements RssListener,
         Intent rssUpdateServiceIntent = new Intent(MainActivity.this, RssUpdateService.class);
         PendingIntent pendingRssUpdateServiceIntent = PendingIntent.getService(MainActivity.this, 0,rssUpdateServiceIntent, 0);
         Resources res = getResources();
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + res.getInteger(R.integer.rss_update_service_initial_alarm_delay), res.getInteger(R.integer.rss_update_service_alarm_interval), pendingRssUpdateServiceIntent);
+        int defaultUpdateFrequencyInHours = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("update_frequency", "24"));
+        long defaultUpdateFrequencyInMilliSeconds = defaultUpdateFrequencyInHours * 60 * 60 * 1000;
+        Log.i("MainActivity", "default frequency: " + Integer.toString(defaultUpdateFrequencyInHours));
+
+        // cancel all the previous scheduled events in case the update frequency is changed
+        alarmManager.cancel(pendingRssUpdateServiceIntent);
+        // now schedule all events
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + res.getInteger(R.integer.initial_update_delay) * 1000, defaultUpdateFrequencyInMilliSeconds, pendingRssUpdateServiceIntent);
     }
 
     @Override
@@ -103,6 +112,8 @@ public class MainActivity extends Activity implements RssListener,
         setRssUpdateServiceAlarm();
         // binds to the activity the RssUpdateService, which will check and update the feed
         bindRssUpdateService();
+        //set the default settings
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
     }
 
     private void bindRssUpdateService() {
@@ -139,6 +150,17 @@ public class MainActivity extends Activity implements RssListener,
             // update the intent to be an empty intent
             setIntent(new Intent());
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
 
