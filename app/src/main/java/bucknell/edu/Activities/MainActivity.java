@@ -51,6 +51,7 @@ public class MainActivity extends Activity implements RssListener,
         // On the other hand, since this object has access to the main activity, it can communicate with the activity as well.
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.i("RssUpdateServiceConnection", "service connected");
             RssUpdateService.RssUpdateBinder rssUpdateBinder = (RssUpdateService.RssUpdateBinder) iBinder;
             rssUpdateService = rssUpdateBinder.getService();
             rssUpdateService.setRssListener(MainActivity.this);
@@ -154,6 +155,7 @@ public class MainActivity extends Activity implements RssListener,
 
     @Override
     protected void onResume() {
+        bindRssUpdateService();
         super.onResume();
 
     }
