@@ -23,6 +23,18 @@
         <item>20 days</item>
     </string-array>
 
+    <string-array name="pref_font_size_titles">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+
+    <string-array name="pref_font_size_values">
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+    </string-array>
+
     <string-array name="rss_sources">
         <item>Bucknellian|http://bucknellian.net/category/news/?json=1|yyyy-MM-dd HH:mm:ss</item>
     </string-array>

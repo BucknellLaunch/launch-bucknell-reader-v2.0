@@ -20,13 +20,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import bucknell.edu.Activities.MainActivity;
 import bucknell.edu.Data.RssItem;
 import bucknell.edu.Data.RssResource;
-import bucknell.edu.Fragments.RssItemFeedFragment;
 import bucknell.edu.Interfaces.RssListener;
 import bucknell.edu.bucknellreader.R;
 import bucknell.edu.database.RssSQLiteDataSource;
 import bucknell.edu.sync.RssJsonAsyncTask;
 
-import static bucknell.edu.bucknellreader.R.drawable.*;
 
 public class RssUpdateService extends Service implements RssListener{
     private RssSQLiteDataSource rssSQLiteDataSource;

@@ -33,4 +33,18 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null" />
 
+    <PreferenceCategory
+        android:title="Appearance">
+        <ListPreference
+            android:key="font_size"
+            android:title="Font Size"
+            android:defaultValue="15"
+            android:entries="@array/pref_font_size_titles"
+            android:entryValues="@array/pref_font_size_values"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"/>
+
+
+    </PreferenceCategory>
+
 </PreferenceScreen>
