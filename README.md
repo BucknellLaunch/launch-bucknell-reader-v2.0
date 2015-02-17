@@ -10,6 +10,9 @@ This summer I accidentally wiped out all data from my laptop, including the repo
 
 Launch is an organization at Bucknell University to promote innovations and entrepreneurship. This app is funded by and is developed for Launch.
 
+## Wiki
+Check out the wiki [here](https://github.com/BucknellLaunch/launch-bucknell-reader-v2.0/wiki)! The goal is to have documentations for every class I wrote!
+
 ## Want to contribute?
 
 Fork this project first to your Github account. Download [Android Studio](https://developer.android.com/sdk/installing/studio.html) and clone project from your Github repo. Check out the tutorial [here](http://stackoverflow.com/questions/16597092/how-to-clone-a-remote-git-repository-with-android-studio)! 
